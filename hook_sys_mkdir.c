@@ -1,5 +1,5 @@
 /*
-* This module need to be compile in 64-bit using GCC.
+* This module need to be compile under 64-bit platform using GCC.
 */
 #include <linux/module.h> /* module_init module_exit */
 #include <linux/init.h> /* __init __exit */
@@ -8,17 +8,12 @@
 #include <asm/bitops.h> /* set_bit clear_bit */
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("sdingcn@gmail.com");
-MODULE_DESCRIPTION("This module can hook the sys_mkdir.");
+MODULE_AUTHOR("shuo.d@outlook.com");
+MODULE_DESCRIPTION("This module can hook the sys_mkdir function.");
 
-/*
-* These global variables are used to store the virtual address of the sys_call_table
-* and the original virtual address of the sys_mkdir.
-*/
 static unsigned long **sys_call_table;
 static asmlinkage long (*original_sys_mkdir)(const char __user *pathname, umode_t mode);
 
-/* These tool functions are used to enable writing on the sys_call_table. */
 static void disable_write_protection(void);
 static void enable_write_protection(void);
 
@@ -49,7 +44,6 @@ static void enable_write_protection(void)
 
 static unsigned long **find_sys_call_table(void)
 {
-	/* use long to represent the virtual address */
 	unsigned long vaddr_number;
 	
 	/* We want this pointer to point to the sys_call_table. */
@@ -74,7 +68,6 @@ static unsigned long **find_sys_call_table(void)
 
 static asmlinkage long new_sys_mkdir(const char __user *pathname, umode_t mode)
 {
-	/* When someone calls the sys_mkdir, this function will report it. */
 	printk("<0>""calling sys_mkdir --hook_sys_mkdir\n");
 	
 	/* We still need to pass the parameters to the original sys_mkdir to complete the procedure of the system call. */
@@ -90,7 +83,6 @@ static int __init hook_sys_mkdir_init(void)
 		return -1;
 	}
 
-	/* save the original function's virtual address and modify the sys_call_table to replace the function */
 	original_sys_mkdir = sys_call_table[__NR_mkdir];
 	disable_write_protection();
 	sys_call_table[__NR_mkdir] = new_sys_mkdir;
@@ -101,7 +93,6 @@ static int __init hook_sys_mkdir_init(void)
 
 static void __exit hook_sys_mkdir_exit(void)
 {
-	/* When this module exits, it will restore the original sys_call_table. */
 	disable_write_protection();
 	sys_call_table[__NR_mkdir] = original_sys_mkdir;
 	enable_write_protection();
