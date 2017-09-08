@@ -1,5 +1,5 @@
 /*
-* This module need to be compile under 64-bit platform using GCC.
+* This module need to be compiled under 64-bit platform using GCC.
 */
 #include <linux/module.h> /* module_init module_exit */
 #include <linux/init.h> /* __init __exit */
@@ -19,7 +19,7 @@ static void enable_write_protection(void);
 
 static unsigned long **find_sys_call_table(void);
 
-/* We need to define a new sys_mkdir, and use the new function to replace the original function. */
+/* We need to define a new sys_mkdir and use the new function to replace the original function. */
 static asmlinkage long new_sys_mkdir(const char __user *pathname, umode_t mode);
 
 static int __init hook_sys_mkdir_init(void);
